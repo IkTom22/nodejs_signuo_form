@@ -18,9 +18,19 @@ app.get("/register", (req, res) => {
 
 app.post(
   "/register",
-  [check("username", "This username must be 3+ characters long").exists()],
+  [
+    check("username", "This username must be 3+ characters long")
+      .exists()
+      .isLength({ min: 3 }),
+    check("email", "Email is not valid").isEmail().normalizeEmail(),
+  ],
   (req, res) => {
-    res.json(req.body);
+    let errs = validationResult(req);
+    if (!errs.isEmpty()) {
+      //return res.status(422).json(err.array());
+      let alert = errs.array();
+      res.render("register", { alert });
+    }
   }
 );
 app.listen(port, () => console.log(`App listening on port ${port}`));
